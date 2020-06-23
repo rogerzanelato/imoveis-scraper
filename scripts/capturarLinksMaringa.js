@@ -5,21 +5,39 @@ const Iconv = require('iconv').Iconv;
 const iconvFromIsoToUf8 = new Iconv('iso-8859-1', 'utf8');
 const moment = require("moment");
 const argv = require("yargs");
+const { number } = require('yargs');
 
 const args = argv.option('valorinicial', {
     type: 'number',
     description: 'Valor inicial dos apartamentos',
-    default: 650
+    default: 300
   })
   .option('valorfinal', {
     type: 'number',
     description: 'Valor final dos apartamentos',
-    default: 1250
+    default: 3000
   })
   .option('tipo', {
     choices: ['locacao', 'venda'],
     description: 'Tipo de apartamento sendo filtrado',
     default: "locacao"
+  })
+  .option('tipo_locacao', {
+    description: 'Tipo de Locação',
+    default: "APARTAMENTOS"
+  })
+  .option('regiao', {
+    description: 'Regiao',
+    default: "44"
+  })
+  .option('estado', {
+    description: 'Estado',
+    default: "PR"
+  })
+  .option('cidade', {
+    type:'number',
+    description: 'Cidade Numero',
+    default: 10 //default maringá
   })
   .help()
   .argv;
@@ -70,20 +88,11 @@ async function getTotalPages() {
  */
 async function getHtmlAtPage(pageNumber) {
     return fetch(buildUrl(pageNumber), {
-        method: 'get',
+        method: 'GET',
         headers: {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Cookie': 'getestado=PR; getcidade=10; _ga=GA1.3.628985793.1565357746; getnegocio=locacao; __utmz=168738595.1567602226.13.3.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); PHPSESSID=2lqpe7sc8em72q4vkdi9bulq7p; __utma=168738595.628985793.1565357746.1567602226.1574298130.14; __utmc=168738595; gettipo=APARTAMENTOS; getregiao=44; __atuvc=0%7C43%2C0%7C44%2C0%7C45%2C0%7C46%2C6%7C47; __atuvs=5dd5e52e18dcb883005; __utmt=1; __utmb=168738595.32.10.1574298130',
-            'Host': 'www.sub100.com.br',
-            'Pragma': 'no-cache',
-            'Referer': buildUrl(0),
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Mobile Safari/537.36'
+            'Cookie': 'sub100_lista=resumo; gettipo='+args.tipo_locacao+'; getregiao='+args.regiao+'; getestado='+args.estado+'; getnegocio='+args.tipo+'; getcidade='+args.cidade,
         },
+        redirect: 'follow'
     })
     .then(res => res.arrayBuffer())
     .then(arrayBuffer => iconvFromIsoToUf8.convert(Buffer.from(arrayBuffer), 'utf-8').toString())
