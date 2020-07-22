@@ -5,7 +5,6 @@ const Iconv = require('iconv').Iconv;
 const iconvFromIsoToUf8 = new Iconv('iso-8859-1', 'utf8');
 const moment = require("moment");
 const argv = require("yargs");
-const { number } = require('yargs');
 
 const args = argv.option('valorinicial', {
     type: 'number',
@@ -90,7 +89,7 @@ async function getHtmlAtPage(pageNumber) {
     return fetch(buildUrl(pageNumber), {
         method: 'GET',
         headers: {
-            'Cookie': 'sub100_lista=resumo; gettipo='+args.tipo_locacao+'; getregiao='+args.regiao+'; getestado='+args.estado+'; getnegocio='+args.tipo+'; getcidade='+args.cidade,
+           'Cookie': `sub100_lista=resumo; gettipo=${args.tipo_locacao}; getregiao=${args.regiao}; getestado=${args.estado}; getnegocio=${args.tipo}; getcidade=${args.cidade}`
         },
         redirect: 'follow'
     })
@@ -103,7 +102,7 @@ async function getHtmlAtPage(pageNumber) {
  * @param {int} pageNumber 
  */
 function buildUrl(pageNumber) {
-    return `http://www.sub100.com.br/imoveis/${args.tipo}/apartamentos/10-maringa-pr/de-r$${args.valorinicial}-ate-r$${args.valorfinal}/regiao-44/sub100list-resumo/pag-${pageNumber}/lista-10`;
+    return `http://www.sub100.com.br/imoveis/${args.tipo}/${args.tipo_locacao}/10-maringa-pr/de-r$${args.valorinicial}-ate-r$${args.valorfinal}/regiao-${args.regiao}/sub100list-resumo/pag-${pageNumber}/lista-10`;
 }
 
 /**
