@@ -1,19 +1,27 @@
 const path = require('path');
 const fetch = require('node-fetch');
-const { googleMapsToken, dadosCalcularDistancia } = require("./config");
+const { googleMapsToken, dadosCalcularDistancia, latitude, longitude } = require("./config");
 const { error, warn, success, messageWithColor, Colors } = require("./lib/console-colorhelper");
 const apiGoogleMaps = require("./lib/api-google-maps");
 const CsvWriter = require("./lib/csv-writer");
 const fs = require('fs').promises;
-const { chunk } = require('./lib/helpers');
+const { chunk, getDistanceFromLatLonInKm } = require('./lib/helpers');
 
 if (process.argv.length < 3) {
     console.log('Utilização: node ' + process.argv[1] + ' <lista-de-links.txt>');
     process.exit(1);
 }
 
-if (dadosCalcularDistancia && !googleMapsToken) {
-    console.warn(warn("Dados para calculo de distância foi informado, mas o Token para consulta à API da Google está vazio. A distância não será calculada!"));
+if (dadosCalcularDistancia && googleMapsToken) {
+    console.log(warn("Dados para calculo de distância e Token do Google Cloud foram informados. Distância será calculada através da API do Google Maps."));
+}
+
+if (dadosCalcularDistancia && !googleMapsToken && latitude && longitude) {
+    console.warn(warn("Latitude e longitude foram informados. A distância será calculada utilizando a forma de Haversine."));
+}
+
+if (dadosCalcularDistancia && !googleMapsToken && (!latitude || !longitude)) {
+    console.warn(warn("Dados para calculo de distância foram informados, mas não há Token para consultar API do Google Maps e o formato fornecido não corresponde à latitude e longitude. A distância não será calculada."));
 }
 
 const serviceCsv = new CsvWriter({
@@ -36,7 +44,7 @@ const serviceCsv = new CsvWriter({
         {header: "Total", name: "total_value", default: ''},
         {header: "IPTU", name: "iptu_value", default: ''},
         {header: "Garagem", name: "parking_spaces", default: ''},
-        {header: "Distância do trabalho", name: "distancia_origem", default: ''},
+        {header: "Distância Referência", name: "distancia_origem", default: ''},
         {header: "Tempo Trajeto", name: "tempo_trajeto", default: ''},
         {header: "Link", name: "link", default: ''}
     ]
@@ -128,6 +136,11 @@ async function mapearParaObjetoCsv(dadosImovel) {
             info.distancia_origem = dadosTrajeto.distance.text;
             info.tempo_trajeto = dadosTrajeto.duration.text;
         }
+    }
+
+    if (dadosCalcularDistancia && !googleMapsToken && latitude && longitude && dadosImovel.latitude && dadosImovel.longitude) {
+        const distancia = getDistanceFromLatLonInKm(latitude, longitude, dadosImovel.latitude, dadosImovel.longitude);
+        info.distancia_origem = distancia.toFixed(3).replace('.', ',');
     }
 
     info.link = `https://sub100.com.br/imoveis/${dadosImovel.reference}`;
