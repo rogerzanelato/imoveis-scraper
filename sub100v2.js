@@ -52,10 +52,10 @@ const filename = process.argv[2];
     console.time(messageWithColor("Tempo total", Colors.BgGreen, Colors.FgBlack));
 
     const chunkSize = 30;
-    const linksStr = await fs.readFile(filename);
+    const linksFile = (await fs.readFile(filename)).toString().split('\n');
 
-    const linksChunks = chunk(linksStr.toString().split('\n'), chunkSize);
-    console.log(warn(`Consultas serão efetuadas em blocos de ${chunkSize}`));
+    const linksChunks = chunk(linksFile, chunkSize);
+    console.log(warn(`${linksFile.length} links. Consultas serão efetuadas em blocos de ${chunkSize}`));
 
     for (let indice = 0; indice < linksChunks.length; indice++) {
         try {
@@ -129,6 +129,8 @@ async function mapearParaObjetoCsv(dadosImovel) {
             info.tempo_trajeto = dadosTrajeto.duration.text;
         }
     }
+
+    info.link = `https://sub100.com.br/imoveis/${dadosImovel.reference}`;
 
     return info;
 }
