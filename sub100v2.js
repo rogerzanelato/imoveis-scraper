@@ -139,7 +139,7 @@ async function mapearParaObjetoCsv(dadosImovel) {
     }
 
     if (dadosCalcularDistancia && !googleMapsToken && latitude && longitude && dadosImovel.latitude && dadosImovel.longitude) {
-        const distancia = getDistanceFromLatLonInKm(latitude, longitude, dadosImovel.latitude, dadosImovel.longitude);
+        const distancia = getDistanceFromLatLonInKm(latitude, longitude, parseFloat(dadosImovel.latitude), parseFloat(dadosImovel.longitude));
         info.distancia_origem = distancia.toFixed(3).replace('.', ',');
     }
 
