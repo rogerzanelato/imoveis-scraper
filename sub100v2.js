@@ -81,39 +81,6 @@ const filename = process.argv[2];
         }
     }
 
-    // let line;
-    // while (line = liner.next()) {
-    //     try {
-    //         console.time(success("Tempo gasto"));
-
-    //         console.log(success(`Iniciando consulta (${lineNumber})`));
-
-    //         const url = line.toString();
-    //         if (!url) {
-    //             break;
-    //         }
-            
-    //         console.log(`Buscando informações do link [${url}]`);
-    //         const dadosImovel = await buscarInformacoesImovelSub100(url);
-
-    //         console.log(`Extraindo informações da página...`);
-    //         const info = await mapearParaObjetoCsv(dadosImovel, url);
-
-    //         if (!info) {
-    //             break;
-    //         }
-
-    //         console.log(`Gravando resultado em CSV...`);
-    //         await serviceCsv.write(info);
-
-    //         console.timeEnd(success("Tempo gasto"));
-    //         console.log("\n" + "-".repeat(100) + "\n");
-    //     } catch (e) {
-    //         console.error(error('Falhou: '), e);
-    //         return;
-    //     }
-    // }
-
     serviceCsv.close();
     console.timeEnd(messageWithColor("Tempo total", Colors.BgGreen, Colors.FgBlack));
 })();
